@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>❤️ 시리의 매칭 게임</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            color: #333;
+            margin-top: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 100px); /* 4개의 열 */
+            grid-gap: 10px;
+            justify-content: center;
+            margin: 20px auto;
+            max-width: 440px;
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: lightgray;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            transition: background-color 0.3s;
+            position: relative;
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none; /* 초기에 이미지 숨김 */
+        }
+
+        .card.flipped img,
+        .card.matched img {
+            display: block; /* 뒤집힌 카드나 매칭된 카드의 이미지 표시 */
+        }
+
+        .matched {
+            background-color: lightgreen;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    <h1>❤️ 시리의 매칭 게임</h1>
+    <div class="grid" id="gameGrid"></div>
+
+    <script>
+        // 카드에 사용될 이미지 배열 (로컬 또는 URL 이미지 경로)
+        const images = [
+            "https://via.placeholder.com/100x100/FF0000/FFFFFF?text=Apple", // 사과
+            "https://via.placeholder.com/100x100/FFFF00/000000?text=Banana", // 바나나
+            "https://via.placeholder.com/100x100/FF00FF/FFFFFF?text=Grape", // 포도
+            "https://via.placeholder.com/100x100/FFA500/FFFFFF?text=Orange", // 오렌지
+            "https://via.placeholder.com/100x100/008000/FFFFFF?text=Kiwi", // 키위
+            "https://via.placeholder.com/100x100/800080/FFFFFF?text=Cherry", // 체리
+            "https://via.placeholder.com/100x100/00FFFF/000000?text=Blueberry", // 블루베리
+            "https://via.placeholder.com/100x100/FF69B4/FFFFFF?text=Peach", // 복숭아
+            "https://via.placeholder.com/100x100/FF0000/FFFFFF?text=Apple",
+            "https://via.placeholder.com/100x100/FFFF00/000000?text=Banana",
+            "https://via.placeholder.com/100x100/FF00FF/FFFFFF?text=Grape",
+            "https://via.placeholder.com/100x100/FFA500/FFFFFF?text=Orange",
+            "https://via.placeholder.com/100x100/008000/FFFFFF?text=Kiwi",
+            "https://via.placeholder.com/100x100/800080/FFFFFF?text=Cherry",
+            "https://via.placeholder.com/100x100/00FFFF/000000?text=Blueberry",
+            "https://via.placeholder.com/100x100/FF69B4/FFFFFF?text=Peach"
+        ];
+
+        let firstCard = null;
+        let lockBoard = false;
+
+        // 배열 섞기 함수
+        function shuffle(array) {
+            array.sort(() => Math.random() - 0.5);
+        }
+
+        // 게임판 생성
+        function createBoard() {
+            const grid = document.getElementById('gameGrid');
+            shuffle(images);  // 이미지 섞기
+            images.forEach((image) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.image = image; // 이미지 데이터 저장
+
+                const img = document.createElement('img');
+                img.src = image;
+                card.appendChild(img);
+
+                card.addEventListener('click', flipCard);
+                grid.appendChild(card);
+            });
+        }
+
+        // 카드 뒤집기
+        function flipCard() {
+            if (lockBoard) return; // 보드 잠금 시 클릭 무시
+            if (this.classList.contains('flipped') || this.classList.contains('matched')) return;
+
+            this.classList.add('flipped');
+
+            if (!firstCard) {
+                firstCard = this;
+                return;
+            }
+
+            checkMatch(this);
+        }
+
+        // 카드 매칭 확인
+        function checkMatch(secondCard) {
+            if (firstCard.dataset.image === secondCard.dataset.image) {
+                // 카드가 일치하면 초록색으로 변경
+                firstCard.classList.add('matched');
+                secondCard.classList.add('matched');
+                resetBoard();
+            } else {
+                // 카드가 일치하지 않으면 다시 뒤집기
+                lockBoard = true;
+                setTimeout(() => {
+                    firstCard.classList.remove('flipped');
+                    secondCard.classList.remove('flipped');
+                    resetBoard();
+                }, 1000);
+            }
+        }
+
+        // 보드 상태 초기화
+        function resetBoard() {
+            firstCard = null;
+            lockBoard = false;
+        }
+
+        // 게임 시작
+        createBoard();
+    </script>
+</body>
+</html>
